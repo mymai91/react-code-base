@@ -398,6 +398,10 @@ export default memo(App);
 ```
 ### 6) Setting up Redux in the app
 
+```
+npm install @reduxjs/toolkit react-redux uuid @types/uuid
+```
+
 Create models folder to define the types src/models/Todo.ts
 
 ```
