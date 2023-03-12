@@ -9,6 +9,10 @@ npx create-react-app interview-code-base  --template typescript
 cd interview-code-base
 ```
 
+```
+npm i @types/react-router-dom
+```
+
 ### 2) Install tailwind css
 https://www.npmjs.com/package/@material-tailwind/react
 
