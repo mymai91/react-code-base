@@ -337,5 +337,152 @@ function App(): React.ReactElement {
 export default memo(App);
 
 ```
+### 6) Setting up Redux in the app
+
+Create models folder to define the types src/models/Todo.ts
+
+```
+export interface Todo {
+  id: string;
+  description: string;
+  completed: boolean;
+}
+```
+
+Setting up Redux in the app
+
+- create folder `src/redux`
+- Add file `src/redux/todoSlice.ts` todoSlice will control state management for our app
+    - set up our Redux store and what Redux Toolkit calls a “slice”
+    
+    We define what we need
+    
+```
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Todo } from "../models/Todo";
+
+const initialState = [] as Todo[];
+const todoSlice = createSlice({
+  name: "todos",
+  initialState,
+  reducers: {
+    addTodo: {
+      reducer: (state, action: PayloadAction<Todo>) => {
+        state.push(action.payload);
+      },
+      prepare: (description: string) => ({
+        payload: {
+          id: uuidv4(),
+          description,
+          completed: false,
+        } as Todo,
+      }),
+    },
+    removeTodo(state, action: PayloadAction<string>) {
+      const index = state.findIndex((todo) => todo.id === action.payload);
+      state.splice(index, 1);
+    },
+		setTodoStatus(
+      state,
+      action: PayloadAction<{ completed: boolean; id: string }>
+    ) {
+      const index = state.findIndex((todo) => todo.id === action.payload.id);
+      state[index].completed = action.payload.completed;
+    },
+  }
+})
+
+export const {addTodo, removeTodo, setTodoStatus} = todoSlice.actions;
+export default todoSlice;
+```
+
+Setup store for Redux create file src/redux/store/index.ts
+
+```
+import { configureStore } from "@reduxjs/toolkit";
+import todoSlice from "../../modules/Todo/feature/todoSlice";
+
+export const store = configureStore({
+  reducer: {
+    [todoSlice.name]: todoSlice.reducer,
+  },
+});
+
+export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof store.getState>;
+```
+
+Adding Redux to React App `index.tsx`
+
+```
+import React from "react";
+import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
+import App from "./App";
+import { store } from "./redux/store";
+
+ReactDOM.render(
+  <React.StrictMode>
+    <Provider store={store}>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
+      QueryClientProvider
+    </Provider>
+  </React.StrictMode>,
+  document.getElementById("root")
+);
+```
+
+Create modules folder and Todo is child module
+
+```
+modules/Todo/components
+modules/Todo/feature
+modules/Todo/hooks
+modules/Todo/models
+modules/Todo/services
+```
+
+ Create template src/modules/components/TodoForm.tsx
+ 
+ ```
+ import React, { FC, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../redux/store";
+
+const TodoForm: FC = () => {
+  const [todoDescription, setTodoDescription] = useState<string>("");
+
+  const todoList = useSelector((state: RootState) => state);
+  const dispatch = useDispatch<AppDispatch>();
+
+	const addTask = () => {
+		dispatch(addTodo(todoDescription));
+	}
+
+	const removeTask = () => {
+		dispatch(removeTodo(todo.id));
+	}
+	
+	const setTask = () => {
+		dispatch(
+      setTodoStatus({ completed: !todo.completed, id: todo.id })
+    );
+  };
+  return (
+    <div>
+      <p>TodoForm</p>
+    </div>
+  );
+};
+
+export default TodoForm;
+```
+
+
+
+
 
 
