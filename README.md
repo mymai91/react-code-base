@@ -298,81 +298,86 @@ npm i react-router-dom
 create `routes/BaseRoutes.tsx`
 
 ```
-import React, { Suspense, memo, useEffect, lazy } from "react";
-import {
-  Routes,
-  Route,
-  useNavigate,
-  useLocation,
-  matchPath,
-} from "react-router-dom";
-import { ProtectedRoute } from "./ProtectedRoute";
+import React, { memo, lazy } from "react";
+import { Route, Routes } from "react-router-dom";
+import Notfound from "../modules/Dashboard/components/Notfound";
+import { ProtectedRoute } from "./ProtectRoutes";
 
-export const routes = {
-  HOMEPAGE: "/",
+const routes = {
+  HOME_PAGE: "/",
   LOGIN_PAGE: "/login",
-  EDIT_PROFILE_PAGE: "/profile/:urlHash",
+  CREATE_CARD_PAGE: "/createcard",
 };
 
-export const publicRouteData: any = [
+const publicRoutes = [
   {
-    path: routes.HOMEPAGE,
-    Element: lazy(() => import("../../Auth/LoginPage")),
+    path: routes.HOME_PAGE,
+    element: lazy(() => import("../modules/Dashboard/components/Home")),
   },
+
   {
     path: routes.LOGIN_PAGE,
-    Element: lazy(() => import("../../Auth/LoginPage")),
-    exact: true,
+    element: lazy(() => import("../modules/Authentication/components/Login")),
   },
 ];
 
-export const privateRouteData: any = [
+const privateRoutes = [
   {
-    path: routes.EDIT_PROFILE_PAGE,
-    Element: lazy(() => import("../../ProfilePage/EditProfilePage")),
-    exact: true,
-    needAuthentication: true,
+    path: routes.CREATE_CARD_PAGE,
+    element: lazy(() => import("../modules/Card/components/CreateCard")),
   },
 ];
+
+// TODO update react-code-base
 
 const BaseRoutes = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
   return (
     <Routes>
-      {publicRouteData.map((route) => (
-        <Route key={route.path} path={route.path} element={<route.Element />} />
-      ))}
-      {privateRouteData.map((route) => (
-        <Route
-          key={route.path}
-          path={route.path}
-          element={
-            <ProtectedRoute>
-              <route.Element />
-            </ProtectedRoute>
-          }
-        />
-      ))}
-      <Route component={NotFound} />
+      {publicRoutes.map((route) => {
+        return (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={<route.element />}
+          />
+        );
+      })}
+
+      {privateRoutes.map((route) => {
+        return (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={
+              <ProtectedRoute>
+                <route.element />
+              </ProtectedRoute>
+            }
+          />
+        );
+      })}
+      <Route path="*" element={<Notfound />} />
     </Routes>
   );
 };
 
 export default memo(BaseRoutes);
-
 ```
 
 create `routes/ProtectRoutes.tsx`
 
 ```
+import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
 
-export const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
-  if (!user) {
+// TODO update react-code-base
+
+export const ProtectedRoute = ({ children }: any) => {
+  const isUser = () => {
+    return false;
+  };
+
+  if (!isUser()) {
     // user is not authenticated
     return <Navigate to="/" />;
   }
@@ -385,11 +390,12 @@ open `App.tsx`
 
 ```
 import React, { memo } from "react";
+import logo from "./logo.svg";
 import "./App.css";
 import { BrowserRouter } from "react-router-dom";
-import BaseRoutes from "./routers/BaseRoutes";
+import BaseRoutes from "./routes/BaseRoutes";
 
-function App(): React.ReactElement {
+function App() {
   return (
     <BrowserRouter>
       <BaseRoutes />
@@ -398,8 +404,8 @@ function App(): React.ReactElement {
 }
 
 export default memo(App);
-
 ```
+
 ### 6) Setting up Redux in the app
 
 ```
