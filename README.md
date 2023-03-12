@@ -80,6 +80,8 @@ export default memo(App);
 
 https://tanstack.com/query/latest/docs/react/quick-start
 
+https://github.com/uidotdev/react-query-course/tree/16-updating-assignment/src
+
 ```
 npm i @tanstack/react-query
 ```
