@@ -566,6 +566,60 @@ SchemaValidation https://react-hook-form.com/get-started/#SchemaValidation
 ```
 npm install @hookform/resolvers yup
 ```
+example `src/modules/Authentication/components/Login.tsx`
+
+```
+import React, { FC, memo, useCallback } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+const SignupSchema = yup.object().shape({
+  firstName: yup.string().required(),
+  age: yup.number().required().positive().integer(),
+});
+
+type SignupData = {
+  firstName: string;
+  lastName: string;
+  age: number;
+};
+
+const Login: FC = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupData>({
+    resolver: yupResolver(SignupSchema),
+  });
+
+  const onSubmit = useCallback((data: SignupData) => {
+    console.log(JSON.stringify(data));
+  }, []);
+
+  return (
+    <div>
+      <p>Login</p>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div>
+          <label>First Name</label>
+          <input {...register("firstName")} />
+          {errors.firstName && <p>{errors.firstName?.message}</p>}
+        </div>
+        <div style={{ marginBottom: 10 }}>
+          <label>Last Name</label>
+          <input {...register("lastName")} />
+          {errors.lastName && <p>{errors.lastName?.message}</p>}
+        </div>
+        <input type="submit" />
+      </form>
+    </div>
+  );
+};
+
+export default memo(Login);
+```
 
 ### 8) React-testing-library
 
