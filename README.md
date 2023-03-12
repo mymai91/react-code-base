@@ -109,3 +109,46 @@ root.render(
 );
 ```
 
+### 4) Installing Axios
+
+https://github.com/axios/axios
+
+```
+import axios from "axios";
+
+const BASE_API_URL = "https://api////....";
+
+const Api = () => {
+  const instance = axios.create({
+    baseURL: BASE_API_URL,
+    timeout: 1000,
+    headers: {
+      "Content-Type": "application/json",
+      "X-Requested-With": "XMLHttpRequest",
+    },
+  });
+
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => error.response
+  );
+  return instance;
+};
+
+export default Api;
+```
+
+example: want to call api
+
+```
+import api from './api';
+
+export const getLikeMenu = (page: number) =>
+	api().get('menu', {
+		params: {
+			like: true,
+			page,
+		},
+	});
+ ```
+
