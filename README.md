@@ -481,8 +481,24 @@ const TodoForm: FC = () => {
 export default TodoForm;
 ```
 
+### 7) React-hook-form
 
+https://react-hook-form.com/get-started/
 
+```
+npm install react-hook-form
+```
+SchemaValidation https://react-hook-form.com/get-started/#SchemaValidation
 
+```
+npm install @hookform/resolvers yup
+```
 
+### 8) React-testing-library
+
+https://testing-library.com/docs/react-testing-library/example-intro
+
+```
+npm install --save-dev @testing-library/react
+```
 
