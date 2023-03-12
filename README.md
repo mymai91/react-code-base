@@ -111,6 +111,62 @@ root.render(
 );
 ```
 
+Create hook example:
+
+```
+import { useMutation } from "@tanstack/react-query";
+import { CardParams } from "../models";
+import CardService from "../services";
+
+export const useCreateCard = () => {
+  return useMutation(cardService.createCard, {
+    onSuccess: (res) => {
+      console.log("onSuccess res");
+    },
+
+    onMutate: async (data: CardParams) => {
+      /**Optimistic mutation */
+    },
+    onError: (_err, data, context) => {
+      console.log("Please try again");
+    },
+  });
+};
+
+```
+
+```
+import { useCreateCard } from "../hooks/useCreateCard";
+
+
+const CardForm: FC = () => {
+  const [avatar, setAvatar] = useState<AvatarState>(defaultAvatar);
+  const { mutate: createCardMutate } = useCreateCard();
+  
+  const onSubmit: SubmitHandler<CardParams> = useCallback(
+    (data: CardParams) => {
+      createCardMutate(
+        { data },
+        {
+          onSuccess: (res: any) => {
+            router.push(`/cards/${res.card.slug}`);
+          },
+        }
+      );
+    },
+    [createCardMutate, router]
+  );
+  
+  <form>
+  	<section className="my-5">
+          <Button key="submit" type="primary" onClick={handleSubmit(onSubmit)}>
+            Submit
+          </Button>
+        </section>
+ </form>
+
+}
+
 ### 4) Installing Axios
 
 https://github.com/axios/axios
