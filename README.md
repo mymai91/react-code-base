@@ -222,4 +222,120 @@ const updateCollection = ({ id, name, description }) => authApi().patch(`collect
 
 export default updateCollection;
 ```
+### 5) Install React-Router-dom
+
+https://www.npmjs.com/package/react-router-dom
+
+https://reactrouter.com/en/main/route/lazy
+
+```
+npm i react-router-dom
+```
+
+create `routes/BaseRoutes.tsx`
+
+```
+import React, { Suspense, memo, useEffect, lazy } from "react";
+import {
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  matchPath,
+} from "react-router-dom";
+import { ProtectedRoute } from "./ProtectedRoute";
+
+export const routes = {
+  HOMEPAGE: "/",
+  LOGIN_PAGE: "/login",
+  EDIT_PROFILE_PAGE: "/profile/:urlHash",
+};
+
+export const publicRouteData: any = [
+  {
+    path: routes.HOMEPAGE,
+    Element: lazy(() => import("../../Auth/LoginPage")),
+  },
+  {
+    path: routes.LOGIN_PAGE,
+    Element: lazy(() => import("../../Auth/LoginPage")),
+    exact: true,
+  },
+];
+
+export const privateRouteData: any = [
+  {
+    path: routes.EDIT_PROFILE_PAGE,
+    Element: lazy(() => import("../../ProfilePage/EditProfilePage")),
+    exact: true,
+    needAuthentication: true,
+  },
+];
+
+const BaseRoutes = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  return (
+    <Routes>
+      {publicRouteData.map((route) => (
+        <Route key={route.path} path={route.path} element={<route.Element />} />
+      ))}
+      {privateRouteData.map((route) => (
+        <Route
+          key={route.path}
+          path={route.path}
+          element={
+            <ProtectedRoute>
+              <route.Element />
+            </ProtectedRoute>
+          }
+        />
+      ))}
+      <Route component={NotFound} />
+    </Routes>
+  );
+};
+
+export default memo(BaseRoutes);
+
+```
+
+create `routes/ProtectRoutes.tsx`
+
+```
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+
+export const ProtectedRoute = ({ children }) => {
+  const { user } = useAuth();
+  if (!user) {
+    // user is not authenticated
+    return <Navigate to="/" />;
+  }
+  return children;
+};
+
+```
+
+open `App.tsx`
+
+```
+import React, { memo } from "react";
+import "./App.css";
+import { BrowserRouter } from "react-router-dom";
+import BaseRoutes from "./routers/BaseRoutes";
+
+function App(): React.ReactElement {
+  return (
+    <BrowserRouter>
+      <BaseRoutes />
+    </BrowserRouter>
+  );
+}
+
+export default memo(App);
+
+```
+
 
