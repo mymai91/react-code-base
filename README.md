@@ -136,7 +136,7 @@ const authApi = () => {
   // Add a request interceptor to instance
   instance.interceptors.request.use(
     (config) => {
-      const token = sessionStorage.getItem("authToken");
+      const token = sessionStorage.getItem("@apptest:AuthToken");
       // eslint-disable-next-line no-param-reassign
       config.headers.Authorization = `Bearer ${token}`;
 
@@ -179,7 +179,8 @@ const loginApi = async ({ email, password }: loginParams) => {
       password,
     },
   });
-  return res.data;
+ // return res.data;
+ return { ...res.data, token: res.headers.authorization };
 };
 
 export default loginApi;
@@ -250,6 +251,7 @@ export const useLogin = () => {
   return useMutation(loginApi, {
     onSuccess: (res) => {
       console.log("res in hook", res);
+      sessionStorage.setItem("@apptest:AuthToken", res.token);
     },
     onError: () => {},
   });
@@ -406,7 +408,7 @@ import { Navigate } from "react-router-dom";
 
 export const ProtectedRoute = ({ children }: any) => {
   const isUser = () => {
-    return false;
+    return !!sessionStorage.getItem("@apptest:AuthToken");
   };
 
   if (!isUser()) {
