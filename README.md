@@ -685,3 +685,7 @@ res.headers.get("authorization")
 npm config set legacy-peer-deps true
 npm install
 ```
+
+### 10) generate type
+
+https://app.quicktype.io/?l=ts
