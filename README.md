@@ -880,7 +880,7 @@ test("loads and displays greeting", async () => {
   fireEvent.change(passwordInput, { target: { value: "abcabc" } });
   expect(passwordInput.value).toBe("abcabc");
 });
-
+```
 
 ### 9) React-toasy
 
