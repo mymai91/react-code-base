@@ -164,7 +164,57 @@ export default authApi;
 
 ```
 
-example: want to call api
+create `src/services/fetchWithError.ts`
+
+```
+import Api from "./api";
+
+const fetchWithError = async (url: string, options: any) => {
+  const res = await Api().get(url, options);
+
+  if (res.status === 200) {
+    const result = await res.data;
+
+    if (result.error) {
+      throw new Error(result.error);
+    }
+
+    return result;
+  }
+
+  throw new Error(`Error ${res.status}: ${res.statusText}`);
+};
+
+export default fetchWithError;
+
+```
+
+create `src/services/fetchAuthApiWithError.ts`
+
+```
+import authApi from "./authApi";
+
+const fetchAuthApiWithError = async (url: string, options: any) => {
+  const res = await authApi().get(url, options);
+
+  if (res.status === 200) {
+    const result = await res.data;
+
+    if (result.error) {
+      throw new Error(result.error);
+    }
+
+    return result;
+  }
+
+  throw new Error(`Error ${res.status}: ${res.statusText}`);
+};
+
+export default fetchAuthApiWithError;
+```
+
+
+<b>example: want to call api<b>
 
 open src/modules/Authentication/apis/login.ts
 
@@ -229,9 +279,9 @@ root.render(
 );
 ```
 
-Create hook example:
+#### Create hook example:
 
-open `src/modules/Authentication/models/index.ts`
+create `src/modules/Authentication/models/index.ts`
 
 ```
 export interface loginParams {
@@ -240,7 +290,7 @@ export interface loginParams {
 }
 ```
 
-open `src/modules/Authentication/hooks/useLogin.ts`
+create `src/modules/Authentication/hooks/useLogin.ts`
 
 ```
 import React from "react";
@@ -317,6 +367,66 @@ const Login: FC = () => {
 };
 
 export default memo(Login);
+```
+	
+create `src/modules/Card/hooks/useGetCards.ts`
+	
+```
+import { useQuery } from "@tanstack/react-query";
+import { getListCards } from "../apis/card";
+
+export const useGetCards = () => {
+  const listCardData = useQuery(["cards"], getListCards, {
+    staleTime: 1000 * 60 * 5,
+    placeholderData: { cards: [] },
+  });
+
+  return listCardData;
+};
+```
+	
+open `src/modules/Card/components/Cards.tsx`
+
+```
+import React, { FC } from "react";
+import { Else, If, Then } from "react-if";
+import { useGetCards } from "../hooks/useGetCards";
+import { Card as CardItem } from "../models/card";
+
+const Cards: FC = () => {
+  const listCardQuery = useGetCards();
+  const cardData = listCardQuery.data.cards;
+
+  if (listCardQuery.isLoading) {
+    return <p>Is Loading</p>;
+  }
+
+  return (
+    <div>
+      <p>Cards</p>
+
+      <If condition={cardData?.length === 0}>
+        <Then>
+          <p>No Data</p>
+        </Then>
+        <Else>
+          <ul>
+            {cardData.map((item: CardItem) => {
+              return (
+                <li
+                  key={item.id}
+                >{`Wedding of ${item.bride_name} ${item.groom_name}`}</li>
+              );
+            })}
+            <li></li>
+          </ul>
+        </Else>
+      </If>
+    </div>
+  );
+};
+
+export default Cards;
 ```
 
 ### 5) Install React-Router-dom
