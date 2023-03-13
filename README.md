@@ -679,4 +679,9 @@ https://www.npmjs.com/package/react-toastify
 npm i react-toastify
 ```
 
+```
 res.headers.get("authorization")
+
+npm config set legacy-peer-deps true
+npm install
+```
