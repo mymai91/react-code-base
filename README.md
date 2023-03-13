@@ -663,6 +663,10 @@ npm install --save-dev @testing-library/react
 
 https://testing-library.com/docs/react-testing-library/example-intro
 
+https://mswjs.io/docs/api/rest
+
+https://github.com/mswjs/examples/tree/master/examples/rest-react/src/mocks
+
 ```
 npm install msw --save-dev
 ```
