@@ -660,6 +660,13 @@ https://testing-library.com/docs/react-testing-library/example-intro
 ```
 npm install --save-dev @testing-library/react
 ```
+
+https://testing-library.com/docs/react-testing-library/example-intro
+
+```
+npm install msw --save-dev
+```
+
 ### 9) React-toasy
 
 https://www.npmjs.com/package/react-toastify
