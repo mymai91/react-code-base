@@ -388,6 +388,31 @@ https://reactrouter.com/en/main/route/lazy
 npm i react-router-dom
 ```
 
+create `src/components/FullPageLoading.tsx`
+	
+```
+import React, { memo } from "react";
+import ReactLoading from "react-loading";
+
+const FullPageLoading: React.FC = () => {
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 10,
+      }}
+    >
+      <ReactLoading color="rgb(53, 126, 221)" type="spin" />
+    </div>
+  );
+};
+export default memo(FullPageLoading);
+```
+
 create `routes/BaseRoutes.tsx`
 
 ```
@@ -431,7 +456,11 @@ const BaseRoutes = () => {
           <Route
             key={route.path}
             path={route.path}
-            element={<route.element />}
+            element={
+              <Suspense fallback={<FullPageLoading />}>
+                <route.element />
+              </Suspense>
+            }
           />
         );
       })}
@@ -442,9 +471,11 @@ const BaseRoutes = () => {
             key={route.path}
             path={route.path}
             element={
-              <ProtectedRoute>
-                <route.element />
-              </ProtectedRoute>
+              <Suspense fallback={<FullPageLoading />}>
+                <ProtectedRoute>
+                  <route.element />
+                </ProtectedRoute>
+              </Suspense>
             }
           />
         );
