@@ -678,3 +678,5 @@ https://www.npmjs.com/package/react-toastify
 ```
 npm i react-toastify
 ```
+
+res.headers.get("authorization")
