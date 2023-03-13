@@ -80,98 +80,6 @@ function App(): React.ReactElement {
 export default memo(App);
 ```
 
-### 3) Installing React-query
-
-https://tanstack.com/query/latest/docs/react/quick-start
-
-https://github.com/uidotdev/react-query-course/tree/16-updating-assignment/src
-
-```
-npm i @tanstack/react-query
-```
-
-open `src/index.tsx` add `QueryClient` & `QueryClientProvider`
-
-```
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// Create a client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60,
-    },
-  },
-});
-
-root.render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <App />
-      </ThemeProvider>
-    </QueryClientProvider>
-  </React.StrictMode>
-);
-```
-
-Create hook example:
-
-```
-import { useMutation } from "@tanstack/react-query";
-import { CardParams } from "../models";
-import CardService from "../services";
-
-export const useCreateCard = () => {
-  return useMutation(cardService.createCard, {
-    onSuccess: (res) => {
-      console.log("onSuccess res");
-    },
-
-    onMutate: async (data: CardParams) => {
-      /**Optimistic mutation */
-    },
-    onError: (_err, data, context) => {
-      console.log("Please try again");
-    },
-  });
-};
-
-```
-
-```
-import { useCreateCard } from "../hooks/useCreateCard";
-
-
-const CardForm: FC = () => {
-  const [avatar, setAvatar] = useState<AvatarState>(defaultAvatar);
-  const { mutate: createCardMutate } = useCreateCard();
-  
-  const onSubmit: SubmitHandler<CardParams> = useCallback(
-    (data: CardParams) => {
-      createCardMutate(
-        { data },
-        {
-          onSuccess: (res: any) => {
-            router.push(`/cards/${res.card.slug}`);
-          },
-        }
-      );
-    },
-    [createCardMutate, router]
-  );
-  
-  <form>
-  	<section className="my-5">
-          <Button key="submit" type="primary" onClick={handleSubmit(onSubmit)}>
-            Submit
-          </Button>
-        </section>
- </form>
-
-}
-```
-
 ### 4) Installing Axios
 
 https://github.com/axios/axios
@@ -258,25 +166,24 @@ export default authApi;
 
 example: want to call api
 
+open src/modules/Authentication/apis/login.ts
+
 ```
-import api from './api';
+import Api from "../../../services/api";
+import { loginParams } from "../models";
 
-export const getLikeMenu = (page: number) =>
-	api().get('menu', {
-		params: {
-			like: true,
-			page,
-		},
-	});
- ```
- 
- ```
-import authApi from './authApi';
+const loginApi = async ({ email, password }: loginParams) => {
+  const res = await Api().post("/login", {
+    user: {
+      email,
+      password,
+    },
+  });
+  return res.data;
+};
 
-const approveInvitation = (id) => authApi().patch(`notifications/${id}/approve`);
-
-export default approveInvitation;
- ```
+export default loginApi;
+```
  
  ```
 import authApi from './authApi';
@@ -285,6 +192,131 @@ const updateCollection = ({ id, name, description }) => authApi().patch(`collect
 
 export default updateCollection;
 ```
+
+### 4) Installing React-query
+
+https://tanstack.com/query/latest/docs/react/quick-start
+
+https://github.com/uidotdev/react-query-course/tree/16-updating-assignment/src
+
+```
+npm i @tanstack/react-query
+```
+
+open `src/index.tsx` add `QueryClient` & `QueryClientProvider`
+
+```
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60,
+    },
+  },
+});
+
+root.render(
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
+    </QueryClientProvider>
+  </React.StrictMode>
+);
+```
+
+Create hook example:
+
+open `src/modules/Authentication/models/index.ts`
+
+```
+export interface loginParams {
+  email: string;
+  password: string;
+}
+```
+
+open `src/modules/Authentication/hooks/useLogin.ts`
+
+```
+import React from "react";
+import { useMutation } from "@tanstack/react-query";
+import loginApi from "../apis/login";
+
+export const useLogin = () => {
+  return useMutation(loginApi, {
+    onSuccess: (res) => {
+      console.log("res in hook", res);
+    },
+    onError: () => {},
+  });
+};
+```
+
+open Login component `src/modules/Authentication/components/Login.tsx`
+
+```
+import React, { FC, memo, useCallback } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { loginParams } from "../models";
+import { useLogin } from "../hooks/useLogin";
+
+const LoginSchema = yup.object().shape({
+  email: yup.string().required(),
+  password: yup.string().required(),
+});
+
+const Login: FC = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<loginParams>({
+    resolver: yupResolver(LoginSchema),
+  });
+
+  const { mutate: loginMutate } = useLogin();
+  const onSubmit = useCallback(
+    (data: loginParams) => {
+      // loginMutate(data, {
+      //   onSuccess: (res: any) => {
+      //     // console.log("res", res);
+      //     // router.push(`/cards/${res.card.slug}`);
+      //   },
+      // });
+      loginMutate(data);
+    },
+    [loginMutate]
+  );
+
+  return (
+    <div>
+      <p>Login</p>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div>
+          <label>Email</label>
+          <input {...register("email")} />
+          {errors.email && <p>{errors.email?.message}</p>}
+        </div>
+        <div style={{ marginBottom: 10 }}>
+          <label>Password</label>
+          <input {...register("password")} type="password" />
+          {errors.password && <p>{errors.password?.message}</p>}
+        </div>
+        <input type="submit" />
+      </form>
+    </div>
+  );
+};
+
+export default memo(Login);
+```
+
 ### 5) Install React-Router-dom
 
 https://www.npmjs.com/package/react-router-dom
